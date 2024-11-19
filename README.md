@@ -1,3 +1,2 @@
-# Finance-Tracker
-User's will be able to track their expenses, income, and deduction. They can input their data and include things like 
-date, amount, and name of expense. They will be able to see and sort their data based on various filters (month, amount, year).
+# Car Renting System
+The **Car Renting System** is a web application designed to connect car owners and clients for seamless vehicle rentals. The platform includes features like car listing management, rental filtering, payment tracking, and rental history organization.
