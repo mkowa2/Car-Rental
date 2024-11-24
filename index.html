@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Rental System</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">Car Rental System</div>
+            <button class="button login-btn" onclick="openLoginModal()">Log In</button>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h1>Rent A Car from the Comfort of Your Phone</h1>
+        <p>Rent just about any car, just about anywhere.</p>
+    </div>
+
+    <main>
+        <div class="facts-container">
+            <div class="fact-box">
+                <h3>No Waiting</h3>
+                <p>Get your car without the hassle of waiting at rental desks.</p>
+            </div>
+            <div class="fact-box">
+                <h3>Wide Selection</h3>
+                <p>Choose from a wide range of vehicles to fit your needs.</p>
+            </div>
+            <div class="fact-box">
+                <h3>Affordable Pricing</h3>
+                <p>Transparent pricing with no hidden fees.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Log in with Email</h2>
+            <form action="/login" method="POST">
+                <input type="email" placeholder="Email" required>
+                <input type="password" placeholder="Password" required>
+                <label>
+                    <input type="checkbox" name="isHost"> I am a host
+                </label>
+                <button type="submit" class="button">Continue</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>
