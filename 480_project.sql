@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS hw3_resume_builder;
-CREATE DATABASE hw3_resume_builder;
-USE hw3_resume_builder;
+DROP DATABASE IF EXISTS 480_project;
+CREATE DATABASE 480_project;
+USE 480_project;
 
 -- DDL section
 
