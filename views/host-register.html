@@ -1,0 +1,31 @@
+<!-- views/host_register.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Host Registration</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <h1>Host Registration</h1>
+    <form action="/host-register" method="POST">
+        <label for="email">Email:</label>
+        <input type="email" name="email" required><br><br>
+
+        <label for="name">Name:</label>
+        <input type="text" name="name" required><br><br>
+
+        <label for="phone">Phone:</label>
+        <input type="text" name="phone"><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" name="password" required><br><br>
+
+        <label for="identificationDetails">Identification Details:</label>
+        <textarea name="identificationDetails"></textarea><br><br>
+
+        <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="/host-login">Login here</a>.</p>
+</body>
+</html>

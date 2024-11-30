@@ -59,6 +59,60 @@ app.get('/host-login', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'host-login.html'));
   });
 
+app.get('/host-register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'host-register.html'));
+});
+
+// Host Login Route
+app.post('/host-login', (req, res) => {
+    const { email, password } = req.body;
+
+    const selectHostQuery = `SELECT * FROM Owner WHERE Email = ? AND Password = ?`;
+
+    db.get(selectHostQuery, [email, password], (err, row) => {
+        if (err) {
+            console.error('Error during host login:', err);
+            return res.status(500).send('Error during login.');
+        }
+        if (row) {
+            req.session = { hostEmail: email }; // Store host session data
+            res.send('Login successful. You can now <a href="/manage-cars">manage your cars</a>.');
+        } else {
+            res.send('Invalid email or password.');
+        }
+    });
+});
+
+// Handle host registration form submission
+app.post('/host-register', (req, res) => {
+    const { email, name, phone, password, identificationDetails } = req.body;
+
+    // Simple validation to ensure required fields are present
+    if (!email || !name || !password) {
+        return res.status(400).send('Please fill in all required fields.');
+    }
+
+    // Insert the new host into the Owner table using a parameterized query to prevent SQL injection
+    const insertOwnerQuery = `
+        INSERT INTO Owner (Email, Name, Phone, Password, IdentificationDetails)
+        VALUES (?, ?, ?, ?, ?)
+    `;
+
+    db.run(insertOwnerQuery, [email, name, phone, password, identificationDetails], function (err) {
+        if (err) {
+            if (err.code === 'SQLITE_CONSTRAINT') {
+                // Handle error if the email already exists due to PRIMARY KEY constraint
+                return res.status(400).send('An owner with this email already exists. Please use a different email.');
+            }
+            console.error('Error registering owner:', err);
+            return res.status(500).send('An error occurred while registering. Please try again later.');
+        }
+
+        // Registration successful
+        res.send('Registration successful! You can now <a href="/host-login">login</a>.');
+    });
+});
+
   app.get('/add-car', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'add_car.html'));
   });
