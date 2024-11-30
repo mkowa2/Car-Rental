@@ -1,0 +1,20 @@
+{
+  "name": "car-rental",
+  "version": "1.0.0",
+  "description": "The **Car Renting System** is a web application designed to connect car owners and clients for seamless vehicle rentals. The platform includes features like car listing management, rental filtering, payment tracking, and rental history organization.",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "express-session": "^1.18.1",
+    "sqlite3": "^5.1.7"
+  }
+}
