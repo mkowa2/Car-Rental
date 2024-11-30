@@ -1,0 +1,72 @@
+body {
+  font-family: Arial, sans-serif;
+}
+
+header {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.form-container {
+  width: 300px;
+  margin: 50px auto;
+  padding: 20px;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 15px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-top: 10px;
+}
+
+input {
+  padding: 8px;
+  margin-top: 5px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+#addButton {
+  background-color: #1E90FF;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: disabled;
+  border-radius: 10px;
+}
+
+#addButton:enabled {
+  cursor: pointer;
+}
+
+#addButton:hover {
+  background-color: #00B2A9;
+}
+
+#cancelButton {
+  background-color: gray;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 10px;
+}

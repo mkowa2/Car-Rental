@@ -10,7 +10,10 @@
     <header>
         <div class="navbar">
             <div class="logo">Car Rental System</div>
-            <button class="button login-btn" onclick="openLoginModal()">Log In</button>
+            <button class="button client-register-btn" onclick="window.location.href='/client-register'">Client Register</button>
+            <button class="button client-login-btn" onclick="window.location.href='/client-login'">Client Login</button>
+            <button class="button host-login-btn" onclick="window.location.href='/host-login'">Host Login</button>
+            <button class="button add-car-btn" onclick="window.location.href='/add-car'">Add Car</button>
         </div>
     </header>
 
@@ -51,18 +54,6 @@
             </form>
         </div>
     </div>
-
-    <body>
-        <h1>Welcome to the Car Rental App</h1>
-        <nav>
-            <a href="/client-register">Client Register</a> |
-            <a href="/client-login">Client Login</a> |
-            <a href="/host-login">Host Login</a> |
-            <a href="/add-car">Add Car</a>
-        </nav>
-        <!-- Add more content as needed -->
-    </body>
-
-    <script src="assets/js/script.js"></script>
+    <script src="/script.js"></script>
 </body>
 </html>

@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
   
   // Add routes for other pages: host login, add car, etc.
 app.get('/host-login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'host_login.html'));
+    res.sendFile(path.join(__dirname, 'views', 'host-login.html'));
   });
 
   app.get('/add-car', (req, res) => {

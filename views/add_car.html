@@ -19,18 +19,18 @@
         <input type="text" id="carModel" name="carModel" required>
 
         <label for="carYear">Year:</label>
-        <input type="number" id="carYear" name="carYear" required min=1970 required>
+        <input type="number" id="carYear" name="carYear" min="1970" required>
 
         <label for="carPrice">Price per Day:</label>
-        <input type="number" id="carPrice" name="carPrice" required min="0" required>
+        <input type="number" id="carPrice" name="carPrice" min="0" required>
 
         <div class="button-group">
           <button type="submit" id="addButton" disabled>Add</button>
-          <button type="button" id="cancelButton">Cancel</button>
+          <button type="button" id="cancelButton" onclick="window.location.href='/'" >Cancel</button>
         </div>
       </form>
     </div>
   </main>
-  <script src="script.js"></script>
+  <script src="/script.js"></script>
 </body>
 </html>
