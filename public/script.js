@@ -21,6 +21,41 @@ document.addEventListener('DOMContentLoaded', () => {
       form.reset();
       addButton.disabled = true;
     });
+
+    document.getElementById(addButton).addEventListener('click', () => {
+        event.preventDefault();
+
+        const carData = {
+            vin: document.getElementById('carVIN').value,
+            make: document.getElementById('carMake').value,
+            model: document.getElementById('carModel').value,
+            year: document.getElementById('carYear').value,
+            licensePlate: document.getElementById('licensePlate').value,
+            dailyPrice: document.getElementById('dailyPrice').value,
+            ownerEmail: document.getElementById('ownerEmail').value,
+        };
+        fetch('/api/add-car', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(carData),
+        })
+            .then((response) => response.json())
+            .then((result) => {
+                if (result.success) {
+                    alert(result.message);
+                    document.getElementById('postCarForm').reset();
+                    document.getElementById('addButton').disabled = true;
+                    loadAvailableCars(); // Refresh the list of cars
+                } else {
+                    alert(`Error: ${result.error}`);
+                }
+            })
+            .catch((error) => {
+                console.error('Error adding car:', error);
+                alert('An error occurred. Please try again later.');
+            });
   });
   
 // Open Login Modal
@@ -114,4 +149,4 @@ document.addEventListener('click', (event) => {
     }
 });
 
-  
+});

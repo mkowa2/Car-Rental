@@ -24,6 +24,15 @@
         <label for="carPrice">Price per Day:</label>
         <input type="number" id="carPrice" name="carPrice" min="0" required>
 
+        <label for="VIN">VIN:</label>
+        <input type="string" id="carVIN" name="carVIN" required>
+
+        <label for="License Plate">License Plate:</label>
+        <input type="string" id="carLicense" name="carLicense" required>
+
+        <label for="ownerEmail">Owner Email:</label>
+        <input type="email" id="ownerEmail" required>
+
         <div class="button-group">
           <button type="submit" id="addButton" disabled>Add</button>
           <button type="button" id="cancelButton" onclick="window.location.href='/'" >Cancel</button>

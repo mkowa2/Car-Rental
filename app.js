@@ -125,9 +125,34 @@ app.post('/host-register', (req, res) => {
     });
 });
 
-  app.get('/add-car', (req, res) => {
+app.get('/add-car', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'add_car.html'));
-  });
+});
+
+// Handle car addition form submission
+// Backend Route to Add a Car
+app.post('/api/add-car', (req, res) => {
+  const { vin, make, model, year, licensePlate, dailyPrice, ownerEmail } = req.body;
+
+  const insertCarQuery = `
+  INSERT INTO Car (VIN, Make, Model, Year, LicensePlate, DailyPrice, OwnerEmail)
+  VALUES (?, ?, ?, ?, ?, ?, ?)
+`;
+
+  db.run(
+      insertCarQuery,
+      [vin, make, model, year, licensePlate, dailyPrice, ownerEmail],
+      function (err) {
+          if (err) {
+              console.error('Error adding car:', err);
+              return res.status(500).json({ success: false, error: 'Failed to add car. Please try again.' });
+          }
+
+          res.json({ success: true, message: 'Car added successfully!' });
+      }
+  );
+});
+
 
 // Client Login Route
 app.post('/client-login', (req, res) => {
@@ -142,10 +167,9 @@ app.post('/client-login', (req, res) => {
       }
       if (row) {
         req.session = { clientEmail: email };
-        // console.log('Session email set:', req.session.clientEmail);  // Debug log
         res.send('Login successful. You can now <a href="/available-cars">view available cars</a>.');
       } else {
-        res.send('Invalid email or password.');
+        res.json({ success: false, error: 'Invalid email or password.' });
       }
     });
   });
@@ -194,7 +218,6 @@ app.get('/available-cars', (req, res) => {
 
 app.get('/api/available-cars', (req, res) => {
     const selectCarsQuery = `SELECT * FROM Car`;
-
     db.all(selectCarsQuery, [], (err, cars) => {
         if (err) {
             console.error('Error fetching cars:', err);
