@@ -132,24 +132,32 @@ app.get('/add-car', (req, res) => {
 // Handle car addition form submission
 // Backend Route to Add a Car
 app.post('/api/add-car', (req, res) => {
+  console.log('Add car request received:', req.body);
+
   const { vin, make, model, year, licensePlate, dailyPrice, ownerEmail } = req.body;
 
+  // Basic validation
+  if (!vin || !make || !model || !year || !licensePlate || !dailyPrice || !ownerEmail) {
+    return res.status(400).json({ success: false, error: 'All fields are required.' });
+  }
+
   const insertCarQuery = `
-  INSERT INTO Car (VIN, Make, Model, Year, LicensePlate, DailyPrice, OwnerEmail)
-  VALUES (?, ?, ?, ?, ?, ?, ?)
-`;
+    INSERT INTO Car (VIN, Make, Model, Year, LicensePlate, DailyPrice, OwnerEmail)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `;
 
   db.run(
-      insertCarQuery,
-      [vin, make, model, year, licensePlate, dailyPrice, ownerEmail],
-      function (err) {
-          if (err) {
-              console.error('Error adding car:', err);
-              return res.status(500).json({ success: false, error: 'Failed to add car. Please try again.' });
-          }
-
-          res.json({ success: true, message: 'Car added successfully!' });
+    insertCarQuery,
+    [vin, make, model, year, licensePlate, dailyPrice, ownerEmail],
+    function (err) {
+      if (err) {
+        console.error('Error adding car to database:', err.message);
+        return res.status(500).json({ success: false, error: 'Database error. Please try again.' });
       }
+
+      console.log('Car added successfully with VIN:', vin);
+      res.json({ success: true, message: 'Car added successfully!' });
+    }
   );
 });
 
