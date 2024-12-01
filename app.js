@@ -5,6 +5,18 @@ const path = require('path');
 
 const app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+
+// const session = require('express-session');
+//
+// // Use express-session middleware
+// app.use(session({
+//     secret: 'your-secret-key', // A secret key for signing the session ID cookie
+//     resave: false,             // Don't force the session to be saved back to the store
+//     saveUninitialized: true,   // Save uninitialized sessions
+//     cookie: { secure: false },  // For development use. For production, set `secure: true` if using HTTPS
+//     clientEmail: ''
+// }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 // Connect to the SQLite database
@@ -120,9 +132,9 @@ app.post('/host-register', (req, res) => {
 // Client Login Route
 app.post('/client-login', (req, res) => {
     const { email, password } = req.body;
-  
+
     const selectClientQuery = `SELECT * FROM Client WHERE Email = ? AND Password = ?`;
-  
+
     db.get(selectClientQuery, [email, password], (err, row) => {
       if (err) {
         console.error('Error during client login:', err);
@@ -130,13 +142,14 @@ app.post('/client-login', (req, res) => {
       }
       if (row) {
         req.session = { clientEmail: email };
+        // console.log('Session email set:', req.session.clientEmail);  // Debug log
         res.send('Login successful. You can now <a href="/available-cars">view available cars</a>.');
       } else {
         res.send('Invalid email or password.');
       }
     });
   });
-  
+
 
   app.get('/client-register', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'client-register.html'));
@@ -175,16 +188,48 @@ app.post('/client-register', (req, res) => {
 
 //Gets all the available cars
 app.get('/available-cars', (req, res) => {
+    // Serve the available-cars.html file
+    res.sendFile(path.join(__dirname, 'views', 'available-cars.html'));
+});
+
+app.get('/api/available-cars', (req, res) => {
     const selectCarsQuery = `SELECT * FROM Car`;
-  
+
     db.all(selectCarsQuery, [], (err, cars) => {
-      if (err) {
-        console.error('Error fetching cars:', err);
-        return res.status(500).json({ error: 'Error fetching cars.' });
-      }
-      res.json(cars);
+        if (err) {
+            console.error('Error fetching cars:', err);
+            return res.status(500).json({ error: 'Error fetching cars.' });
+        }
+        res.json(cars);
     });
-  });
+});
+
+app.post('/api/rent-car', (req, res) => {
+    const { clientEmail, vin, startDate, endDate } = req.body;
+
+    // console.log('Request body:', req.body); // Debugging line
+    // console.log('Client email from session:', req.session.clientEmail);  // Debug log
+
+    // Simple validation
+    if (!clientEmail || !vin || !startDate || !endDate) {
+        return res.status(400).json({ success: false, error: 'Missing required fields.' });
+    }
+
+    // SQL query to insert into the Rental table
+    const insertRentalQuery = `
+        INSERT INTO Rental (VIN, ClientEmail, StartDate, EndDate)
+        VALUES (?, ?, ?, ?)
+    `;
+
+    db.run(insertRentalQuery, [vin, clientEmail, startDate, endDate], function (err) {
+        if (err) {
+            console.error('Error inserting rental:', err);
+            return res.status(500).json({ success: false, error: 'Failed to rent the car.' });
+        }
+
+        res.json({ success: true, message: 'Car rented successfully!' });
+    });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
