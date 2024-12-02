@@ -57,9 +57,9 @@ function addCar(event) {
                 alert(result.message);
                 document.getElementById('postCarForm').reset();
                 document.getElementById('addButton').disabled = true;
-
                 // Reload available cars after adding a new one
-                loadAvailableCars();
+                loadHostCars();
+                window.location.href = '/host-homepage';
             } else {
                 alert(`Error: ${result.error}`);
             }
@@ -105,21 +105,27 @@ function loginHost(email, password) {
 
 // Function to fetch car data from the API and display it
 function loadAvailableCars() {
+    console.log('Fetching available cars...');
     fetch('/api/available-cars')
         .then((response) => response.json())
-        .then((cars) => {
+        .then((data) => {
+            console.log('Available cars:', data);
+            if (!data.success) {
+                console.error(data.error || 'Failed to load cars.');
+                return;
+            }
+
             const carListDiv = document.getElementById('car-list');
+            const cars = data.cars;
 
             if (cars.length === 0) {
                 carListDiv.innerHTML = '<p>No cars available at the moment.</p>';
                 return;
             }
-
-            // Clear any existing cars
+            // Clear previous cars
             carListDiv.innerHTML = '';
-
+            // Render each car
             cars.forEach((car) => {
-                // Create the car card
                 const carCard = document.createElement('div');
                 carCard.classList.add('car-card');
 
@@ -130,18 +136,18 @@ function loadAvailableCars() {
                     <a href="#" class="rent-button" data-vin="${car.VIN}">Rent this car</a>
                 `;
 
-                // Append the car card to the car list
                 carListDiv.appendChild(carCard);
             });
         })
         .catch((error) => {
-            console.error('Error fetching car data:', error);
+            console.error('Error loading cars:', error);
             const carListDiv = document.getElementById('car-list');
             carListDiv.innerHTML = '<p>Error loading cars. Please try again later.</p>';
         });
 }
 
 
+window.addEventListener('load', loadAvailableCars);
 
 // document.addEventListener('click', (event) => {
 //     if (event.target.classList.contains('rent-button')) {
@@ -217,54 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
       modal.style.display = 'flex';
     }
 });
-// Load the host's available cars
-function loadHostCars() {
-    const hostEmail = localStorage.getItem('hostEmail'); // Retrieve email from localStorage
-    if (!hostEmail) {
-        alert('No host email found. Please log in again.');
-        window.location.href = '/host-login'; // Redirect to login page
-        return;
-    }
-
-    fetch(`/api/host-cars?email=${encodeURIComponent(hostEmail)}`)
-        .then((response) => response.json())
-        .then((data) => {
-            if (!data.success) {
-                alert(data.error || 'Failed to fetch host cars.');
-                return;
-            }
-
-            const carListDiv = document.getElementById('car-list');
-            const cars = data.cars;
-
-            if (cars.length === 0) {
-                carListDiv.innerHTML = '<p>No cars available for this host.</p>';
-                return;
-            }
-
-            carListDiv.innerHTML = ''; // Clear existing content
-
-            cars.forEach((car) => {
-                const carCard = document.createElement('div');
-                carCard.classList.add('car-card');
-
-                carCard.innerHTML = `
-                    <h3>${car.Make} ${car.Model} (${car.Year})</h3>
-                    <p>License Plate: ${car.LicensePlate}</p>
-                    <p class="price">Daily Price: $${car.DailyPrice}</p>
-                `;
-
-                carListDiv.appendChild(carCard);
-            });
-        })
-        .catch((error) => {
-            console.error('Error loading host cars:', error);
-            document.getElementById('car-list').innerHTML = '<p>Error loading cars. Please try again later.</p>';
-        });
-}
-
-
-  });
+});
 
   // Close the modal
   closeModalButton.addEventListener('click', () => {
@@ -336,7 +295,7 @@ function loadHostCars() {
                 return;
             }
 
-            const carListDiv = document.getElementById('car-list');
+            const carListDiv = document.getElementById('car-list-host');
             const cars = data.cars;
 
             if (cars.length === 0) {
@@ -354,6 +313,7 @@ function loadHostCars() {
                     <h3>${car.Make} ${car.Model} (${car.Year})</h3>
                     <p>License Plate: ${car.LicensePlate}</p>
                     <p class="price">Daily Price: $${car.DailyPrice}</p>
+                    <button class="delete-button" data-vin="${car.VIN}">Delete</button>
                 `;
 
                 carListDiv.appendChild(carCard);
@@ -361,8 +321,43 @@ function loadHostCars() {
         })
         .catch((error) => {
             console.error('Error loading host cars:', error);
-            document.getElementById('car-list').innerHTML = '<p>Error loading cars. Please try again later.</p>';
+            document.getElementById('car-list-host').innerHTML = '<p>Error loading cars. Please try again later.</p>';
+        });
+
+        document.addEventListener('click', (event) => {
+            if (event.target.classList.contains('delete-button')) {
+                const vin = event.target.dataset.vin; // Retrieve VIN from data attribute
+                deleteCar(vin);
+            }
         });
 }
+
+function deleteCar(vin) {
+    if (!confirm('Are you sure you want to delete this car?')) {
+        return; // Exit if the user cancels
+    }
+
+    fetch(`/api/delete-car`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vin }), // Pass the VIN to the backend
+    })
+        .then((response) => response.json())
+        .then((result) => {
+            if (result.success) {
+                alert(result.message);
+                loadHostCars(); // Reload the list of cars after deletion
+            } else {
+                alert(`Error: ${result.error}`);
+            }
+        })
+        .catch((error) => {
+            console.error('Error deleting car:', error);
+            alert('An error occurred. Please try again later.');
+        });
+}
+
 
 

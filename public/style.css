@@ -179,3 +179,57 @@ body {
 .close:hover {
     color: #1E90FF; /* Light blue on hover for effect */
 }
+
+/* Cars List */
+.car-list, .car-list-host {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+.car-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 350px;
+}
+.car-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+.car-card h3 {
+    font-size: 24px;
+    color: #1E90FF;
+    margin-bottom: 10px;
+}
+.car-card p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 10px;
+}
+.car-card .price {
+    font-size: 18px;
+    color: #00B2A9;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+.car-card a {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #1E90FF;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+.car-card a:hover {
+    background-color: #00B2A9;
+}
