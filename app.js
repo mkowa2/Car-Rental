@@ -234,6 +234,44 @@ app.post('/api/return-car', (req, res) => {
     });
 });
 
+// **Delete Car API**
+app.delete('/api/delete-car', (req, res) => {
+    const { vin } = req.body;
+    if (!vin) {
+        return res.status(400).json({ success: false, error: 'VIN is required to delete a car.' });
+    }
+    // Check if the car is currently rented
+    const checkRentalQuery = `
+        SELECT 1 FROM Rental
+        WHERE VIN = ? AND date('now') BETWEEN StartDate AND EndDate
+        LIMIT 1
+    `;
+    db.get(checkRentalQuery, [vin], (err, row) => {
+        if (err) {
+            console.error('Error checking rentals for car:', err.message);
+            return res.status(500).json({ success: false, error: 'Failed to check car rentals.' });
+        }
+        if (row) {
+            // If a row is found, the car is currently rented
+            return res.status(400).json({ success: false, error: 'This car is currently rented and cannot be deleted.' });
+        }
+        // If no active rentals, proceed to delete the car
+        const deleteCarQuery = `DELETE FROM Car WHERE VIN = ?`;
+        db.run(deleteCarQuery, [vin], function (err) {
+            if (err) {
+                console.error('Error deleting car:', err.message);
+                return res.status(500).json({ success: false, error: 'Failed to delete car.' });
+            }
+            if (this.changes === 0) {
+                return res.status(404).json({ success: false, error: 'Car not found.' });
+            }
+            res.json({ success: true, message: 'Car deleted successfully!' });
+        });
+    });
+});
+
+
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

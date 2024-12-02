@@ -241,3 +241,32 @@ function loadHostCars() {
         });
 }
 
+//Delete a car from the host's list
+function deleteCar(vin) {
+    if (!confirm('Are you sure you want to delete this car?')) {
+        return; // Exit if the user cancels
+    }
+
+    fetch(`/api/delete-car`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vin }), // Pass the VIN to the backend
+    })
+        .then((response) => response.json())
+        .then((result) => {
+            if (result.success) {
+                alert(result.message);
+                loadHostCars(); // Reload the list of cars after deletion
+            } else {
+                alert(`Error: ${result.error}`);
+            }
+        })
+        .catch((error) => {
+            console.error('Error deleting car:', error);
+            alert('An error occurred. Please try again later.');
+        });
+}
+
+
