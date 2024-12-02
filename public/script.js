@@ -57,9 +57,10 @@ function addCar(event) {
                 alert(result.message);
                 document.getElementById('postCarForm').reset();
                 document.getElementById('addButton').disabled = true;
-
                 // Reload available cars after adding a new one
                 loadAvailableCars();
+                window.location.href = '/host-homepage';
+
             } else {
                 alert(`Error: ${result.error}`);
             }
@@ -183,6 +184,11 @@ document.addEventListener('click', (event) => {
                 alert('An error occurred. Please try again later.');
             });
     }
+    if (event.target.classList.contains('delete-button')) {
+        const vin = event.target.dataset.vin; 
+        //TODO IMPLEMENT DELETE FUNCTION
+        deleteCar(vin);
+    }
 });
 
 
@@ -222,6 +228,8 @@ function loadHostCars() {
                     <h3>${car.Make} ${car.Model} (${car.Year})</h3>
                     <p>License Plate: ${car.LicensePlate}</p>
                     <p class="price">Daily Price: $${car.DailyPrice}</p>
+                    <button class="delete-button" data-vin="${car.VIN}">Delete</button>
+
                 `;
                 carListDiv.appendChild(carCard);
             });
