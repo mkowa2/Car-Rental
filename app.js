@@ -179,12 +179,16 @@ app.post('/client-login', (req, res) => {
       }
       if (row) {
         req.session = { clientEmail: email };
-        res.send('Login successful. You can now <a href="/available-cars">view available cars</a>.');
+        res.send('Login successful. You can now <a href="/available-cars">view available cars</a>. or <a href="/client-manage-rental">manage your rentals</a>');
       } else {
         res.json({ success: false, error: 'Invalid email or password.' });
       }
     });
   });
+
+app.get('/client-manage-rental', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'client-manage-rental.html'));
+});
 
 
   app.get('/client-register', (req, res) => {
@@ -229,13 +233,22 @@ app.get('/available-cars', (req, res) => {
 });
 
 app.get('/api/available-cars', (req, res) => {
-    const selectCarsQuery = `SELECT * FROM Car`;
-    db.all(selectCarsQuery, [], (err, cars) => {
+    const selectCarsQuery = `
+        SELECT * 
+        FROM Car 
+        WHERE VIN NOT IN (
+            SELECT VIN 
+            FROM Rental
+        )
+    `;
+
+    db.all(selectCarsQuery, [], (err, rows) => {
         if (err) {
-            console.error('Error fetching cars:', err);
-            return res.status(500).json({ error: 'Error fetching cars.' });
+            console.error('Error fetching available cars:', err);
+            res.status(500).json({ error: 'Failed to fetch available cars.' });
+        } else {
+            res.json(rows);
         }
-        res.json(cars);
     });
 });
 
@@ -268,7 +281,7 @@ app.post('/api/rent-car', (req, res) => {
 
 // SQL that returns all the cars that belong to the host
 app.get('/api/host-cars', (req, res) => {
-  const hostEmail = req.query.email;
+  const hostEmail = req.query.email;g
   if (!hostEmail) {
       return res.status(400).json({ success: false, error: 'Host email is required.' });
   }
@@ -283,6 +296,44 @@ app.get('/api/host-cars', (req, res) => {
   });
 });
 
+
+// Fetch rentals for a specific client
+app.get('/api/client-rentals', (req, res) => {
+    const clientEmail = req.query.email; // Client email is passed via query params
+    const query = `
+        SELECT R.VIN, C.Make, C.Model, C.Year, C.DailyPrice, R.StartDate, R.EndDate
+        FROM Rental R
+        INNER JOIN Car C ON R.VIN = C.VIN
+        WHERE R.ClientEmail = ?
+    `;
+
+    db.all(query, [clientEmail], (err, rentals) => {
+        if (err) {
+            console.error('Error fetching client rentals:', err);
+            return res.status(500).json({ error: 'Failed to fetch rentals.' });
+        }
+        res.json(rentals);
+    });
+});
+
+// Handle car return/cancellation
+app.post('/api/return-car', (req, res) => {
+    const { vin, clientEmail } = req.body;
+
+    const deleteRentalQuery = `
+        DELETE FROM Rental 
+        WHERE VIN = ? AND ClientEmail = ?
+    `;
+
+    db.run(deleteRentalQuery, [vin, clientEmail], function (err) {
+        if (err) {
+            console.error('Error returning car:', err);
+            return res.status(500).json({ error: 'Failed to return the car.' });
+        }
+
+        res.json({ success: true, message: 'Car returned successfully!' });
+    });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
