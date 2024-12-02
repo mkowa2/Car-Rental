@@ -80,6 +80,28 @@ function closeLoginModal() {
     document.getElementById('login-modal').style.display = 'none';
 }
 
+//Function that redirects to host hompage after login
+function loginHost(email, password) {
+    fetch('/host-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                localStorage.setItem('hostEmail', data.email); // Save host email locally
+                window.location.href = data.redirectUrl; // Redirect to host homepage
+            } else {
+                alert(`Login failed: ${data.error}`);
+            }
+        })
+        .catch((error) => {
+            console.error('Error logging in:', error);
+            alert('An error occurred. Please try again later.');
+        });
+}
+
 
 // Function to fetch car data from the API and display it
 function loadAvailableCars() {
@@ -119,7 +141,7 @@ function loadAvailableCars() {
         });
 }
 
-window.addEventListener('load', loadAvailableCars);
+
 
 
 document.addEventListener('click', (event) => {
@@ -160,3 +182,50 @@ document.addEventListener('click', (event) => {
             });
     }
 });
+// Load the host's available cars
+function loadHostCars() {
+    const hostEmail = localStorage.getItem('hostEmail'); // Retrieve email from localStorage
+    if (!hostEmail) {
+        alert('No host email found. Please log in again.');
+        window.location.href = '/host-login'; // Redirect to login page
+        return;
+    }
+
+    fetch(`/api/host-cars?email=${encodeURIComponent(hostEmail)}`)
+        .then((response) => response.json())
+        .then((data) => {
+            if (!data.success) {
+                alert(data.error || 'Failed to fetch host cars.');
+                return;
+            }
+
+            const carListDiv = document.getElementById('car-list');
+            const cars = data.cars;
+
+            if (cars.length === 0) {
+                carListDiv.innerHTML = '<p>No cars available for this host.</p>';
+                return;
+            }
+
+            carListDiv.innerHTML = ''; // Clear existing content
+
+            cars.forEach((car) => {
+                const carCard = document.createElement('div');
+                carCard.classList.add('car-card');
+
+                carCard.innerHTML = `
+                    <h3>${car.Make} ${car.Model} (${car.Year})</h3>
+                    <p>License Plate: ${car.LicensePlate}</p>
+                    <p class="price">Daily Price: $${car.DailyPrice}</p>
+                `;
+
+                carListDiv.appendChild(carCard);
+            });
+        })
+        .catch((error) => {
+            console.error('Error loading host cars:', error);
+            document.getElementById('car-list').innerHTML = '<p>Error loading cars. Please try again later.</p>';
+        });
+}
+
+

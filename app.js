@@ -77,22 +77,26 @@ app.get('/host-register', (req, res) => {
 
 // Host Login Route
 app.post('/host-login', (req, res) => {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    const selectHostQuery = `SELECT * FROM Owner WHERE Email = ? AND Password = ?`;
+  const selectHostQuery = `SELECT * FROM Owner WHERE Email = ? AND Password = ?`;
 
-    db.get(selectHostQuery, [email, password], (err, row) => {
-        if (err) {
-            console.error('Error during host login:', err);
-            return res.status(500).send('Error during login.');
-        }
-        if (row) {
-            req.session = { hostEmail: email }; // Store host session data
-            res.send('Login successful. You can now <a href="/manage-cars">manage your cars</a>.');
-        } else {
-            res.send('Invalid email or password.');
-        }
-    });
+  db.get(selectHostQuery, [email, password], (err, row) => {
+      if (err) {
+          console.error('Error during host login:', err);
+          return res.status(500).json({ success: false, error: 'Error during login.' });
+      }
+      if (row) {
+          res.json({ success: true, message: 'Login successful.', email, redirectUrl: '/host-homepage' });
+      } else {
+          res.status(401).json({ success: false, error: 'Invalid email or password.' });
+      }
+  });
+});
+
+
+app.get('/host-homepage', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'host-homepage.html'));
 });
 
 // Handle host registration form submission
@@ -261,6 +265,24 @@ app.post('/api/rent-car', (req, res) => {
         res.json({ success: true, message: 'Car rented successfully!' });
     });
 });
+
+// SQL that returns all the cars that belong to the host
+app.get('/api/host-cars', (req, res) => {
+  const hostEmail = req.query.email;
+  if (!hostEmail) {
+      return res.status(400).json({ success: false, error: 'Host email is required.' });
+  }
+
+  const selectCarsQuery = `SELECT * FROM Car WHERE OwnerEmail = ?`;
+  db.all(selectCarsQuery, [hostEmail], (err, cars) => {
+      if (err) {
+          console.error('Error fetching cars:', err);
+          return res.status(500).json({ success: false, error: 'Error fetching cars.' });
+      }
+      res.json({ success: true, cars });
+  });
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

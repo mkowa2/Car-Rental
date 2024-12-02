@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Host Homepage</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">Car Rental System</div>
+            <button class="button add-car-btn" onclick="window.location.href='/add-car'">Add Car</button>
+        </div>
+    </header>
+
+    <main>
+        <h1>Your Cars</h1>
+        <div id="car-list" class="car-list"></div>
+    </main>
+
+    <script src="/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadHostCars); // Load host cars on page load
+    </script>
+</body>
+</html>
