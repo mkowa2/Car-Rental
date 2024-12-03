@@ -254,7 +254,8 @@ function loadHostCars() {
                 carCard.innerHTML = `
                     <h3>${car.Make} ${car.Model} (${car.Year})</h3>
                     <p>License Plate: ${car.LicensePlate}</p>
-                    <p class="price">Daily Price: $${car.DailyPrice}</p>
+                    <p class="price">Daily Price: $<span class="daily-price">${car.DailyPrice}</span></p>
+                    <button class="update-price-button" data-vin="${car.VIN}">Update Price</button>
                     <button class="delete-button" data-vin="${car.VIN}">Delete</button>
                 `;
 
@@ -270,6 +271,11 @@ function loadHostCars() {
             if (event.target.classList.contains('delete-button')) {
                 const vin = event.target.dataset.vin; // Retrieve VIN from data attribute
                 deleteCar(vin);
+            }
+
+            if (event.target.classList.contains('update-price-button')) {
+                const vin = event.target.dataset.vin; // Retrieve VIN from data attribute
+                updateCarPrice(vin);
             }
         });
 }
@@ -297,6 +303,33 @@ function deleteCar(vin) {
         })
         .catch((error) => {
             console.error('Error deleting car:', error);
+            alert('An error occurred. Please try again later.');
+        });
+}
+
+function updateCarPrice(vin) {
+    const newPrice = prompt('Enter the new daily price for this car:');
+    if (!newPrice || isNaN(newPrice) || parseFloat(newPrice) <= 0) {
+        alert('Please enter a valid price.');
+        return;
+    }
+
+    fetch(`/api/update-car-price`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vin, newPrice: parseFloat(newPrice) })
+    })
+        .then((response) => response.json())
+        .then((result) => {
+            if (result.success) {
+                alert('Price updated successfully!');
+                loadHostCars(); // Reload the list of cars after updating price
+            } else {
+                alert(`Error: ${result.error}`);
+            }
+        })
+        .catch((error) => {
+            console.error('Error updating price:', error);
             alert('An error occurred. Please try again later.');
         });
 }

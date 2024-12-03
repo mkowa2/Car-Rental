@@ -399,6 +399,35 @@ app.delete('/api/delete-car', (req, res) => {
     });
 });
 
+app.post('/api/update-car-price', (req, res) => {
+    const { vin, newPrice } = req.body;
+
+    if (!vin || !newPrice) {
+        return res.status(400).json({ success: false, error: 'VIN and new price are required.' });
+    }
+
+    // Validate the price
+    if (isNaN(newPrice) || newPrice <= 0) {
+        return res.status(400).json({ success: false, error: 'Invalid price value.' });
+    }
+
+    // Update the car's daily price in the database
+    const updatePriceQuery = `UPDATE Car SET DailyPrice = ? WHERE VIN = ?`;
+
+    db.run(updatePriceQuery, [newPrice, vin], function (err) {
+        if (err) {
+            console.error('Error updating car price:', err.message);
+            return res.status(500).json({ success: false, error: 'Failed to update car price.' });
+        }
+
+        if (this.changes === 0) {
+            return res.status(404).json({ success: false, error: 'Car not found.' });
+        }
+
+        res.json({ success: true, message: 'Car price updated successfully!' });
+    });
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
