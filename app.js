@@ -297,40 +297,63 @@ app.get('/api/host-cars', (req, res) => {
 
 
 // Fetch rentals for a specific client
-app.get('/api/client-rentals', (req, res) => {
-    const clientEmail = req.query.email; // Client email is passed via query params
-    const query = `
-        SELECT R.VIN, C.Make, C.Model, C.Year, C.DailyPrice, R.StartDate, R.EndDate
-        FROM Rental R
-        INNER JOIN Car C ON R.VIN = C.VIN
-        WHERE R.ClientEmail = ?
-    `;
+// Example of the backend route to fetch rentals for the client
+app.get('/api/fetch-rentals', (req, res) => {
+    const { clientEmail } = req.query;
 
-    db.all(query, [clientEmail], (err, rentals) => {
-        if (err) {
-            console.error('Error fetching client rentals:', err);
-            return res.status(500).json({ error: 'Failed to fetch rentals.' });
+    if (!clientEmail) {
+        return res.status(400).json({ success: false, error: 'Client email is required' });
+    }
+
+    // Check if client exists
+    const checkClientQuery = `SELECT * FROM Client WHERE Email = ?`;
+    db.get(checkClientQuery, [clientEmail], (err, client) => {
+        if (err || !client) {
+            console.error('Client not found:', err || 'No client with this email');
+            return res.status(404).json({ success: false, error: 'Client not found' });
         }
-        res.json(rentals);
+
+        // Now fetch rentals for the client
+        const query = `
+            SELECT r.VIN, c.Make, c.Model, c.Year, r.StartDate, r.EndDate, c.DailyPrice
+            FROM Rental r
+            JOIN Car c ON r.VIN = c.VIN
+            WHERE r.ClientEmail = ?
+        `;
+        db.all(query, [clientEmail], (err, rentals) => {
+            if (err) {
+                console.error('Error fetching rentals:', err);
+                return res.status(500).json({ success: false, error: 'Failed to fetch rentals' });
+            }
+
+            res.json({
+                success: true,
+                rentals: rentals || []
+            });
+        });
     });
 });
 
 // Handle car return/cancellation
-app.post('/api/return-car', (req, res) => {
+// Example of the backend route to cancel/return a rental
+app.post('/api/cancel-rental', (req, res) => {
     const { vin, clientEmail } = req.body;
 
-    const deleteRentalQuery = `
-        DELETE FROM Rental 
-        WHERE VIN = ? AND ClientEmail = ?
+    if (!vin || !clientEmail) {
+        return res.status(400).json({ success: false, error: 'VIN and client email are required' });
+    }
+
+    const cancelQuery = `
+        DELETE FROM Rental WHERE VIN = ? AND ClientEmail = ?
     `;
 
-    db.run(deleteRentalQuery, [vin, clientEmail], function (err) {
+    db.run(cancelQuery, [vin, clientEmail], function (err) {
         if (err) {
-            console.error('Error returning car:', err);
-            return res.status(500).json({ error: 'Failed to return the car.' });
+            console.error('Error cancelling rental:', err);
+            return res.status(500).json({ success: false, error: 'Failed to cancel rental' });
         }
 
-        res.json({ success: true, message: 'Car returned successfully!' });
+        res.json({ success: true, message: 'Rental cancelled successfully' });
     });
 });
 
